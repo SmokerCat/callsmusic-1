@@ -90,4 +90,4 @@ async def play(_, message: Message):
         await response.edit_text(f"Queued at position {position}!")
     else:
         await callsmusic.set_stream(message.chat.id, file)
-        await response.edit_text("hahaha..Playing...")
+        await response.edit_text("Playing...")
