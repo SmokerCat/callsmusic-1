@@ -23,9 +23,9 @@ from ..helpers.filters import other_filters2
 @Client.on_message(other_filters2)
 async def start(_, message: Message):
     await message.reply_text(
-        f"""I am an open-source @CallsMusic bot, I let you play music in your group’s voice chat.
+        f"""I am an open-source Voice chat Music bot, I let you play music in your group’s voice chat.Send a Song or Video in your group and replay /play to Start playing.For working Add My assistant @CatKing_ext as admin in your chat.
 
-The commands I currently support are:
+The commands Currently Available :
 
 /play - play the replied audio file or YouTube video
 /pause - pause the audio stream
@@ -38,10 +38,10 @@ The commands I currently support are:
             [
                 [
                     InlineKeyboardButton(
-                        "Group", url="https://t.me/callsmusicchat"
+                        "Group", url="https://t.me/Aami_song_bot_chat"
                     ),
                     InlineKeyboardButton(
-                        "Channel", url="https://t.me/callsmusic"
+                        "Channel", url="https://t.me/gscatoffi"
                     )
                 ]
             ]
