@@ -34,7 +34,7 @@ from .. import queues
 async def play(_, message: Message):
     audio = (message.reply_to_message.audio or message.reply_to_message.voice) if message.reply_to_message else None
 
-    response = await message.reply_text("Processing...")
+    response = await message.reply_text("Wait,I am Preparing...")
 
     if audio:
         if round(audio.duration / 60) > DURATION_LIMIT:
@@ -90,4 +90,4 @@ async def play(_, message: Message):
         await response.edit_text(f"Queued at position {position}!")
     else:
         await callsmusic.set_stream(message.chat.id, file)
-        await response.edit_text("Playing...")
+        await response.edit_text("hahaha..Playing...")
