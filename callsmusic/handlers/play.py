@@ -1,93 +1,91 @@
-# Calls Music 1 - Telegram bot for streaming audio in group calls
-# Copyright (C) 2021  Roj Serbest
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 from os import path
 
 from pyrogram import Client
-from pyrogram.types import Message, Voice
+from pyrogram.types import Message
+from pyrogram.types import Voice
 
+from .. import converter
+from .. import queues
 from ..callsmusic import callsmusic
 from ..config import DURATION_LIMIT
-from .. import converter
 from ..downloaders import youtube
+from ..helpers.chat_id import get_chat_id
 from ..helpers.decorators import errors
 from ..helpers.errors import DurationLimitError
-from ..helpers.filters import command, other_filters
-from .. import queues
+from ..helpers.filters import command
+from ..helpers.filters import other_filters
 
 
-@Client.on_message(command("play") & other_filters)
+@Client.on_message(command('play') & other_filters)
 @errors
 async def play(_, message: Message):
-    audio = (message.reply_to_message.audio or message.reply_to_message.voice) if message.reply_to_message else None
-
-    response = await message.reply_text("Wait,I am Preparing...")
-
+    audio = (
+        message.reply_to_message.audio or message.reply_to_message.voice
+    ) if message.reply_to_message else None
+    response = await message.reply_text('<b>🔄 Processing...</b>', False)
     if audio:
         if round(audio.duration / 60) > DURATION_LIMIT:
             raise DurationLimitError(
-                f"Videos longer than {DURATION_LIMIT} minute(s) aren’t allowed, the provided audio is {round(audio.duration / 60)} minute(s)"
+                f'Audios longer than {DURATION_LIMIT} minute(s) '
+                'are not allowed, the provided audio is '
+                f'{round(audio.duration / 60)} minute(s)',
             )
-
-        file_name = audio.file_unique_id + "." + (
+        file_name = audio.file_unique_id + '.' + (
             (
-                audio.file_name.split(".")[-1]
+                audio.file_name.split('.')[-1]
             ) if (
                 not isinstance(audio, Voice)
-            ) else "ogg"
+            ) else 'ogg'
         )
-
+        file_name = path.join(path.realpath('downloads'), file_name)
         file = await converter.convert(
             (
                 await message.reply_to_message.download(file_name)
             )
             if (
-                not path.isfile(path.join("downloads", file_name))
-            ) else file_name
+                not path.isfile(file_name)
+            )
+            else file_name,
         )
     else:
-        messages = [message]
-        text = ""
-        offset = None
-        length = None
-
+        entities = []
+        if message.entities:
+            entities += entities
+        elif message.caption_entities:
+            entities += message.caption_entities
         if message.reply_to_message:
-            messages.append(message.reply_to_message)
+            text = message.reply_to_message.text \
+                or message.reply_to_message.caption
+            if message.reply_to_message.entities:
+                entities = message.reply_to_message.entities + entities
+            elif message.reply_to_message.caption_entities:
+                entities = message.reply_to_message.entities + entities
+        else:
+            text = message.text or message.caption
 
-        for _message in messages:
-            if offset:
-                break
+        urls = [entity for entity in entities if entity.type == 'url']
+        text_links = [
+            entity for entity in entities if entity.type == 'text_link'
+        ]
 
-            if _message.entities:
-                for entity in _message.entities:
-                    if entity.type == "url":
-                        text = _message.text or _message.caption
-                        offset, length = entity.offset, entity.length
-                        break
-
-        if offset in (None,):
-            await response.edit_text("You did not give me anything to play!")
+        if urls:
+            url = text[urls[0].offset:urls[0].offset + urls[0].length]
+        elif text_links:
+            url = text_links[0].url
+        else:
+            await response.edit_text(
+                '<b>❌ You did not give me anything to play</b>',
+            )
             return
 
-        url = text[offset:offset + length]
         file = await converter.convert(youtube.download(url))
-
-    if message.chat.id in callsmusic.active_chats:
-        position = await queues.put(message.chat.id, file=file)
-        await response.edit_text(f"Queued at position {position}!")
+    chat_id = get_chat_id(message.chat)
+    if chat_id in callsmusic.active_chats:
+        position = await queues.put(chat_id, file=file)
+        await response.edit_text(
+            f'<b>#️⃣ Queued at position {position}</b>...',
+        )
     else:
-        await callsmusic.set_stream(message.chat.id, file)
-        await response.edit_text("Playing...")
+        await callsmusic.set_stream(chat_id, file)
+        await response.edit_text('<b>▶️ Playing...</b>')
+
