@@ -35,7 +35,7 @@ async def pause(_, message: Message):
     ) if (
         callsmusic.pause(message.chat.id)
     ) else (
-        await message.reply_text("Nothing is playing!")
+        await message.reply_text("Nothing i started yet!")
     )
 
 
@@ -48,7 +48,7 @@ async def resume(_, message: Message):
     ) if (
         callsmusic.resume(message.chat.id)
     ) else (
-        await message.reply_text("Nothing is paused!")
+        await message.reply_text("Nothing here to Pause!")
     )
 
 
@@ -57,7 +57,7 @@ async def resume(_, message: Message):
 @authorized_users_only
 async def stop(_, message: Message):
     if message.chat.id not in callsmusic.active_chats:
-        await message.reply_text("Nothing is playing!")
+        await message.reply_text("Nothing here to Play!")
     else:
         try:
             queues.clear(message.chat.id)
@@ -73,7 +73,7 @@ async def stop(_, message: Message):
 @authorized_users_only
 async def skip(_, message: Message):
     if message.chat.id not in callsmusic.active_chats:
-        await message.reply_text("Nothing is playing!")
+        await message.reply_text("Nothing here to play!")
     else:
         queues.task_done(message.chat.id)
 
@@ -98,11 +98,11 @@ async def mute(_, message: Message):
     ) if (
         result == 0
     ) else (
-        await message.reply_text("Already muted!")
+        await message.reply_text("Yeah I am Muted!")
     ) if (
         result == 1
     ) else (
-        await message.reply_text("Not in voice chat!")
+        await message.reply_text("I am Not in Voice Chat!")
     )
 
 
@@ -117,9 +117,9 @@ async def unmute(_, message: Message):
     ) if (
         result == 0
     ) else (
-        await message.reply_text("Not muted!")
+        await message.reply_text("I can Sing!")
     ) if (
         result == 1
     ) else (
-        await message.reply_text("Not in voice chat!")
+        await message.reply_text("I am not in voice chat!")
     )
