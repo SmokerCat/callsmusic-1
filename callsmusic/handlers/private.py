@@ -23,7 +23,7 @@ from ..helpers.filters import other_filters2
 @Client.on_message(other_filters2)
 async def start(_, message: Message):
     await message.reply_text(
-        f"""I am an open-source Voice chat Music bot, I let you play music in your group’s voice chat.Send a Song or Video in your group and reply /play to Start playing. For working Add My assistant @CatKing_ext as admin in your chat.
+        f"""I am Aami❤. A bot for Streaming Songs🎶 on you group/channel voice chat.
 
 The commands Currently Available :
 
@@ -38,10 +38,16 @@ The commands Currently Available :
             [
                 [
                     InlineKeyboardButton(
-                        "Group", url="https://t.me/Aami_song_bot_chat"
+                        "Group 👥", url="https://t.me/Aami_song_bot_chat"
                     ),
                     InlineKeyboardButton(
-                        "Channel", url="https://t.me/gscatoffi"
+                        "Channel 🤞", url="https://t.me/aami_update_web"
+                    ),
+                    InlineKeyboardButton(
+                        "About ❕", url="https://t.me/Aami_info_web"
+                    ),
+                    InlineKeyboardButton(
+                        "Complaint 📃", url="https:t.me/DARK_TELEGRAMER"
                     )
                 ]
             ]
